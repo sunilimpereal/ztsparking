@@ -9,8 +9,6 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:ztsparking/dashboard/data/models/category.dart';
-import 'package:ztsparking/dashboard/data/models/ticket.dart';
 import 'package:ztsparking/utils/shared_pref.dart';
 import '../main.dart';
 

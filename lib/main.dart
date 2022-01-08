@@ -2,16 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ztsparking/authentication/login/bloc/login_bloc.dart';
-import 'package:ztsparking/authentication/login/bloc/login_stream.dart';
 import 'package:ztsparking/constants/app_fonts.dart';
 import 'package:ztsparking/constants/appstyles.dart';
 import 'package:ztsparking/constants/config_.dart';
 import 'package:ztsparking/constants/themes/theme.dart';
+import 'package:ztsparking/entry/authentication/login/bloc/login_bloc.dart';
+import 'package:ztsparking/entry/authentication/login/bloc/login_stream.dart';
+import 'package:ztsparking/entry/authentication/login/login_page.dart';
+import 'package:ztsparking/entry/ticket/data/repository/ticket_bloc.dart';
 import 'package:ztsparking/utils/shared_pref.dart';
 
-import 'authentication/login/login_page.dart';
-import 'dashboard/screens/dashboard_screen.dart';
+import 'entry/entry_dash/dashboard_screen.dart';
+
 
 AppStyles appStyles = AppStyles();
 AppFonts appFonts = AppFonts();
@@ -34,8 +36,11 @@ class AppWrapperProvider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CheckLoginProvider(
-      child: LoginProvider(
-        child: MyApp(),
+      child: TicketProvider(
+        context: context,
+        child: LoginProvider(
+          child: MyApp(),
+        ),
       ),
     );
   }

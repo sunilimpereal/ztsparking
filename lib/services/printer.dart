@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:ztsparking/constants.dart';
@@ -30,16 +31,18 @@ class Printer {
   //   return result == 3 ? true : false;
   // }
 
-  Future<dynamic> printReceipt(Map<String, dynamic> data) async {
+  Future<bool> printReceipt(Map<String, dynamic> data) async {
     int result;
     try {
       var printStatus = await platform.invokeMethod('print', data);
       if (printStatus == -1) {
         return false;
       }
-      print(printStatus);
+      log(printStatus);
+      return true;
     } on PlatformException catch (e) {
-      print('$e');
+      log('error $e');
+      return false;
     }
   }
 

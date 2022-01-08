@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 
 
@@ -76,6 +77,8 @@ public class MainActivity extends FlutterActivity {
     private List<String> lineitemTotal = new ArrayList<String>();
     private String ticketTotal;
     private String ticketNumber;
+    private String qrCode;
+    private String vehicleNumber;
     public static final String STREAM = "printingStatus";
     EventChannel.EventSink mEventSink;
 
@@ -85,8 +88,10 @@ public class MainActivity extends FlutterActivity {
         super.configureFlutterEngine(flutterEngine);
 
         new EventChannel(getFlutterEngine().getDartExecutor().getBinaryMessenger(), STREAM).setStreamHandler(new EventChannel.StreamHandler() {
+           
             @Override
             public void onListen(Object arguments, EventChannel.EventSink events) {
+                System.out.println("sds");
                 mEventSink = events;
 
 
@@ -114,6 +119,8 @@ public class MainActivity extends FlutterActivity {
                                 lineitemQty   = call.argument("lineitemQty");
                                 lineitemTotal = call.argument("lineitemTotal");
                                 ticketTotal   = call.argument("ticketTotal");
+                                qrCode   = call.argument("qrCode");
+                                vehicleNumber   = call.argument("vehicleNumber");
                                 System.out.println("category");
                                 System.out.println(categoryName.toString());
                                 System.out.println(lineItems.toString());
@@ -121,7 +128,10 @@ public class MainActivity extends FlutterActivity {
                                 System.out.println(lineitemTotal.toString());
                                 System.out.println(ticketTotal.toString());
                                 System.out.println(ticketNumber.toString());
-                                // Toast.makeText(this, "Bluetooth Not Supported", Toast.LENGTH_SHORT).show();
+                                System.out.println(qrCode.toString());
+                                System.out.println(vehicleNumber.toString());
+                                result.success(results);
+                                 //Toast.makeText(this, "Bluetooth Not Supported", Toast.LENGTH_SHORT).show();
                             } else if (call.method.equals("printerStatus")) {
                                 result.success(results);
                             }
@@ -155,6 +165,22 @@ public class MainActivity extends FlutterActivity {
     protected void onPause() {
         mPrinter.onActivityPause();
         super.onPause();
+    }
+
+        @Override
+    protected void onStart() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(RECEIPT_PRINTER_MESSAGES);
+        LocalBroadcastManager.getInstance(this).registerReceiver(ReceiptPrinterMessageReceiver, intentFilter);
+
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(ReceiptPrinterMessageReceiver);
+
+        super.onStop();
     }
 
 
@@ -220,37 +246,52 @@ public class MainActivity extends FlutterActivity {
 
         @Override
         protected Void doInBackground(Void... params) {
+            TextPaint tp = new TextPaint();
+            tp.setTextSize(36);
             mPrinter.setPrinterWidth(PrinterWidth.PRINT_WIDTH_48MM);
             mPrinter.resetPrinter();
-//            Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ticketlogo);
+      Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ticketlogo);
+      Bitmap logo = BitmapFactory.decodeResource(getResources(), R.mipmap.logo1);
             mPrinter.setAlignmentCenter();
             mPrinter.setCharRightSpacing(10);
-//            mPrinter.printGrayScaleImage(bmp, 1);
+          mPrinter.printGrayScaleImage(bmp, 1);
             mPrinter.setCharRightSpacing(0);
             mPrinter.pixelLineFeed(50);
             // Bill Details Start
             mPrinter.setAlignmentLeft();
-            mPrinter.printTextLine("SAVE FOREST,SAVE WILDLIFE");
+            mPrinter.printTextLine("SAVE FOREST,SAVE WILDLIFE\n");
             mPrinter.printTextLine("Ticket Number: " + ticketNumber + "\n");
-            mPrinter.printTextLine("Time   : " + dateTime + "\n");
-            mPrinter.printTextLine( categoryName + "\n");
-            mPrinter.printTextLine("----------------------------------------");
-            mPrinter.printTextLine("name         Qty          total");
-            mPrinter.printTextLine("----------------------------------------");
+            mPrinter.printTextLine("Date & Time : " + dateTime + "\n");
+            mPrinter.printTextLine("Vehicle Number : " + vehicleNumber + "\n");
             mPrinter.setAlignmentCenter();
-            PrintColumnParam colm1  = new PrintColumnParam((String[]) lineItems.toArray(),40);
-            PrintColumnParam colm2 = new PrintColumnParam((String[]) lineitemQty.toArray(),30);
-            PrintColumnParam colm3= new PrintColumnParam((String[]) lineitemTotal.toArray(),30);
+            mPrinter.setBoldOn();
+mPrinter.setCharRightSpacing(3);
+mPrinter.pixelLineFeed(50);
+mPrinter.pixelLineFeed(50);
+mPrinter.printLineFeed();
+            mPrinter.printTextLine( "PARKING TICKET\n");
+            mPrinter.pixelLineFeed(50);  
+            mPrinter.setBoldOff();
+mPrinter.setCharRightSpacing(0);
+            mPrinter.printTextLine("-------------------------------\n");
+            mPrinter.printTextLine("Name            Qty      total \n");
+            mPrinter.printTextLine("-------------------------------\n");
+            mPrinter.setAlignmentCenter();
+            PrintColumnParam colm1  = new PrintColumnParam((String[]) lineItems.toArray(new String[0]),50);
+            PrintColumnParam colm2 = new PrintColumnParam( (String[])lineitemQty.toArray(new String[0]),25);
+            PrintColumnParam colm3=  new PrintColumnParam((String[]) lineitemTotal.toArray(new String[0]),25,Layout.Alignment.ALIGN_OPPOSITE);
             mPrinter.PrintTable(colm1,colm2,colm3);
             mPrinter.setAlignmentRight();
-            mPrinter.printTextLine("Total : " + ticketTotal.toString()+"\n");
-            mPrinter.printQRcode(ticketNumber, 300, imageAlignment);
-            // mPrinter.printTextLine("\nViolators will be booked under\nK F ACT 1963 and WP ACT1972\n");
-            // mPrinter.printLineFeed();
-            // mPrinter.printTextLine("Save Tigers\n");
-            // mPrinter.printLineFeed();
+            mPrinter.printUnicodeText("Total : " + ticketTotal.toString()+"\n",Layout.Alignment.ALIGN_OPPOSITE,tp);
+            mPrinter.printQRcode(qrCode, 300, imageAlignment);
+            mPrinter.setAlignmentLeft();
+            mPrinter.printTextLine("Valid for 4 Hours,Overstay\nwill be charged\n");
+            mPrinter.printTextLine("THANK YOU VISIT AGAIN \nLOVE AND PROTECT ANIMALS\n");
+            mPrinter.printGrayScaleImage(logo, 1);
             // mPrinter.printTextLine("******************************\n");
-            // mPrinter.printLineFeed();
+            mPrinter.printLineFeed();
+            mPrinter.printLineFeed();
+
 
 
             return null;
