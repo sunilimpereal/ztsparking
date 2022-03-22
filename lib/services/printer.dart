@@ -38,7 +38,37 @@ class Printer {
       if (printStatus == -1) {
         return false;
       }
+      log(printStatus.toString());
+      return true;
+    } on PlatformException catch (e) {
+      log('error $e');
+      return false;
+    }
+  }
+
+  Future<bool> printReceiptPark(Map<String, dynamic> data) async {
+    int result;
+    try {
+      var printStatus = await platform.invokeMethod('printPark', data);
+      if (printStatus == -1) {
+        return false;
+      }
       log(printStatus);
+      return true;
+    } on PlatformException catch (e) {
+      log('error $e');
+      return false;
+    }
+  }
+
+  Future<bool> printSummary(Map<String, dynamic> data) async {
+    int result;
+    try {
+      var printStatus = await platform.invokeMethod('printSummary', data);
+      if (printStatus == -1) {
+        return false;
+      }
+      log(printStatus.toString());
       return true;
     } on PlatformException catch (e) {
       log('error $e');

@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:ztsparking/entry/entry_dash/data/models/category.dart';
+import 'package:ztsparking/entry/ticket/data/models/ticket.dart';
 import 'package:ztsparking/utils/shared_pref.dart';
 import '../main.dart';
 
@@ -80,7 +82,7 @@ Future<Uint8List> toQrImageData(String text) async {
 getTicketNumber() {
   DateTime currentDateTime = DateTime.now();
   final parms = [
-    'MYS',
+    '${sharedPrefs.getTicketCode}',
     sharedPrefs.loginId,
     currentDateTime.month + 1,
     currentDateTime.day,

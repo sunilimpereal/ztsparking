@@ -4,14 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:ztsparking/entry/entry_dash/data/models/category.dart';
 import 'package:ztsparking/entry/entry_dash/data/models/post_ticekt_response.dart';
-import 'package:ztsparking/entry/entry_dash/data/models/ticket.dart';
+import 'package:ztsparking/entry/ticket/data/models/ticket.dart';
 
 
 import 'package:ztsparking/repository/repositry.dart';
 import 'package:ztsparking/services/printer.dart';
 import 'package:ztsparking/utils/methods.dart';
 
-import '../../../../../main.dart';
+import '../../../../main.dart';
 
 
 
@@ -41,7 +41,7 @@ class CategoryRepository {
       'Accept': 'application/json',
       'Authorization': 'Bearer ${sharedPref.token}',
     };
-    Ticket ticket = getTicket([category]) as Ticket;
+    Ticket ticket = getTicket([category]);
     final response = await API.post(
       url: 'ticket/',
       headers: postheaders,
@@ -100,6 +100,7 @@ class CategoryRepository {
       'ticketNumber': ticket.number,
       "qrCode": qrCode,
       "vehicleNumber": vehicleNumber,
+      "isExitTicket": false
     };
     final result = await printer.printReceipt(data);
     log(result.toString());

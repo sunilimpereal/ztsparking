@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
-import 'package:ztsparking/entry/authentication/login/bloc/login_stream.dart';
+import 'package:ztsparking/authentication/login/bloc/login_stream.dart';
+import 'package:ztsparking/constants/config_.dart';
 import '../main.dart';
 
 class API {
@@ -26,16 +27,16 @@ class API {
       String? apiRoot,
       Map<String, String>? headers1}) async {
     try {
-      log('url: ${apiRoot ?? config.API_ROOT}${url} ');
-      var response = await http.get(Uri.parse("${apiRoot ?? config.API_ROOT}$url"),
+      log('url: ${apiRoot ?? Config().API_ROOT}${url} ');
+      var response = await http.get(Uri.parse("${apiRoot ?? Config().API_ROOT}$url"),
           headers: headers1 ?? headers);
-      log('respose: ${Uri.parse("${apiRoot ?? config.API_ROOT}$url").toString()}');
+      log('respose: ${Uri.parse("${apiRoot ?? Config().API_ROOT}$url").toString()}');
       log('respose: ${response.statusCode}');
       log('respose: ${response.body}');
       log('tocken: ${sharedPref.token}');
       if (response.statusCode == 401) {
-        Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
-        CheckLoginProvider.of(context)?.logout();
+        // Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+        // CheckLoginProvider.of(context)?.logout();
       }
       return response;
     } finally {
@@ -52,9 +53,9 @@ class API {
     bool? logs,
   }) async {
     try {
-      log('url: ${apiRoot ?? config.API_ROOT}${url} ');
+      log('url: ${apiRoot ?? Config().API_ROOT}${url} ');
       log('body: $body');
-      var response = await http.post(Uri.parse("${apiRoot ?? config.API_ROOT}$url"),
+      var response = await http.post(Uri.parse("${apiRoot ?? Config().API_ROOT}$url"),
           body: body, headers: headers ?? postheaders);
       log('respose: ${response.statusCode}');
       log('respose: ${response.body}');
@@ -74,9 +75,9 @@ class API {
     String? apiRoot,
   }) async {
     try {
-      log('url: ${apiRoot ?? config.API_ROOT}${url} ');
+      log('url: ${apiRoot ?? Config().API_ROOT}${url} ');
       log('body: $body');
-      var response = await http.patch(Uri.parse("${apiRoot ?? config.API_ROOT}$url"),
+      var response = await http.patch(Uri.parse("${apiRoot ?? Config().API_ROOT}$url"),
           body: body, headers: headers ?? postheaders);
       log('respose: ${response.statusCode}');
       log('respose: ${response.body}');

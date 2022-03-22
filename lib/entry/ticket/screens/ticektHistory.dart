@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:ztsparking/entry/entry_dash/data/models/generated_tickets.dart';
+import 'package:ztsparking/entry/ticket/data/models/ticket_report_model.dart';
 import 'package:ztsparking/entry/ticket/data/repository/ticket_bloc.dart';
+import 'package:ztsparking/entry/ticket/widgets/duration_dropdown.dart';
 import 'package:ztsparking/entry/ticket/widgets/reload_button.dart';
 import 'package:ztsparking/entry/ticket/widgets/tciket_card.dart';
 
@@ -25,20 +28,21 @@ class TickethistoryScreen extends StatefulWidget {
 }
 
 class _TickethistoryScreenState extends State<TickethistoryScreen> {
+  bool isHour = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: StreamBuilder<List<GeneratedTickets>>(
-          stream: TicketProvider.of(context).recentTicketStream,
+      body: StreamBuilder<List<TicketReportItem>>(
+          stream: TicketProvider.of(context).ticketReportStream,
           builder: (context, snapshot) {
-            List<GeneratedTickets> tickets = snapshot.data ?? [];
+            List<TicketReportItem> tickets = snapshot.data ?? [];
             return SafeArea(
               child: Column(
                 children: [
                   Container(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 3.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -56,13 +60,30 @@ class _TickethistoryScreenState extends State<TickethistoryScreen> {
                                 "Tikcet History",
                                 style: TextStyle(
                                   color: Colors.green,
-                                  fontSize: 24,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
                           ),
-                          ZTSReloadButton()
+                          Row(
+                            children: [
+                              ZTSReloadButton(
+                                isHour: isHour,
+                              ),
+                              Container(
+                                height: 50,
+                                child: ZTSDurationDropdown(
+                                  onChanged: (value) {
+                                    setState(() {
+                                      log("asd" + isHour.toString());
+                                      isHour = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -76,7 +97,7 @@ class _TickethistoryScreenState extends State<TickethistoryScreen> {
                             cacheExtent: 10000,
                             itemCount: tickets.length,
                             itemBuilder: (c, index) {
-                              return TicketCard(generatedTicket: tickets[index]);
+                              return TicketCard(ticketReportItem: tickets[index]);
                             })
                         : Center(
                             child: CircularProgressIndicator(),

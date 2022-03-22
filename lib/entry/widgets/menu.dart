@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:ztsparking/entry/authentication/login/login_page.dart';
+import 'package:ztsparking/authentication/login/login_page.dart';
 import 'package:ztsparking/entry/ticket/data/repository/ticket_bloc.dart';
 import 'package:ztsparking/entry/ticket/screens/ticektHistory.dart';
+import 'package:ztsparking/entry/ticket/screens/ticket_summary_screen.dart';
 import 'package:ztsparking/main.dart';
 import 'package:ztsparking/services/printer.dart';
 
 
 class MenuDropDown extends StatefulWidget {
-  const MenuDropDown({Key? key}) : super(key: key);
+  Function logout;
+  MenuDropDown({Key? key, required this.logout}) : super(key: key);
 
   @override
   _MenuDropDownState createState() => _MenuDropDownState();
@@ -78,6 +80,9 @@ class _MenuDropDownState extends State<MenuDropDown> {
           width: 100,
           color: Colors.transparent,
           child: Menulist(
+            logout: () {
+              widget.logout();
+            },
             exitontap: () {
               setState(() {
                 hideOverlay();
@@ -121,7 +126,8 @@ class _MenuDropDownState extends State<MenuDropDown> {
 
 class Menulist extends StatefulWidget {
   Function exitontap;
-  Menulist({Key? key, required this.exitontap}) : super(key: key);
+  Function logout;
+  Menulist({Key? key, required this.exitontap, required this.logout}) : super(key: key);
 
   @override
   State<Menulist> createState() => _MenulistState();
@@ -131,7 +137,8 @@ class _MenulistState extends State<Menulist> {
   @override
   void initState() {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
-      TicketProvider.of(context).getRecentTickets();
+      TicketProvider.of(context).getTicketReport(showonlyHour: true);
+      TicketProvider.of(context).getLineItemSumry(DateTime.now());
     });
     super.initState();
   }
@@ -168,15 +175,26 @@ class _MenulistState extends State<Menulist> {
             },
           ),
           menuItem(
+            name: "Summary",
+            icon: Icons.summarize,
+            ontap: () {
+              widget.exitontap();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TicketSummaryScreen(),
+                ),
+              );
+            },
+          ),
+          menuItem(
             name: "Logout",
             icon: Icons.logout,
             ontap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LoginPage(),
-                ),
-              );
+              widget.exitontap();
+              Navigator.pop(context);
+             
+                widget.logout();
             },
           ),
         ],

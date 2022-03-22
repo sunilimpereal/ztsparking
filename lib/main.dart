@@ -6,14 +6,14 @@ import 'package:ztsparking/constants/app_fonts.dart';
 import 'package:ztsparking/constants/appstyles.dart';
 import 'package:ztsparking/constants/config_.dart';
 import 'package:ztsparking/constants/themes/theme.dart';
-import 'package:ztsparking/entry/authentication/login/bloc/login_bloc.dart';
-import 'package:ztsparking/entry/authentication/login/bloc/login_stream.dart';
-import 'package:ztsparking/entry/authentication/login/login_page.dart';
 import 'package:ztsparking/entry/ticket/data/repository/ticket_bloc.dart';
+import 'package:ztsparking/select_type.dart';
 import 'package:ztsparking/utils/shared_pref.dart';
 
+import 'authentication/login/bloc/login_bloc.dart';
+import 'authentication/login/bloc/login_stream.dart';
+import 'authentication/login/login_page.dart';
 import 'entry/entry_dash/dashboard_screen.dart';
-
 
 AppStyles appStyles = AppStyles();
 AppFonts appFonts = AppFonts();
@@ -23,7 +23,9 @@ SharedPref sharedPref = SharedPref();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await sharedPref.init();
-  runApp(AppWrapperProvider());
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]).then((_) {
+    runApp(AppWrapperProvider());
+  });
 }
 
 bool isDeviceOnline = false;
@@ -86,7 +88,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       theme: theme,
       title: 'ZTS Parking',
-      initialRoute: sharedPref.loggedIn ? '/dashboard' : '/login',
+      initialRoute: sharedPref.loggedIn ? '/selectType' : '/login',
       onGenerateRoute: onGeneratedRoute,
     );
   }
@@ -97,6 +99,9 @@ class _MyAppState extends State<MyApp> {
     }
     if (routeSettings.name == '/dashboard') {
       return MaterialPageRoute(builder: (_) => const DashBoardWrapper());
+    }
+     if (routeSettings.name == '/selectType') {
+      return MaterialPageRoute(builder: (_) => const SelectType());
     }
     return MaterialPageRoute(builder: (_) => const LoginPage());
   }

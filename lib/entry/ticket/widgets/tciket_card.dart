@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
-import 'package:ztsparking/entry/entry_dash/data/models/generated_tickets.dart';
+import 'package:ztsparking/entry/ticket/data/models/ticket_report_model.dart';
+
 
 class TicketCard extends StatelessWidget {
-  GeneratedTickets generatedTicket;
-  TicketCard({Key? key, required this.generatedTicket}) : super(key: key);
+  TicketReportItem ticketReportItem;
+  TicketCard({Key? key, required this.ticketReportItem}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,10 @@ class TicketCard extends StatelessWidget {
         shadowColor: Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
         clipBehavior: Clip.hardEdge,
+        color: ticketReportItem.qrCode.isScanned? Colors.green[100]:Colors.white,
         child: InkWell(
           onTap: () {},
+          
           child: Stack(
             children: [
               Container(
@@ -43,14 +46,14 @@ class TicketCard extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          generatedTicket.number,
+                          ticketReportItem.number,
                           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                         ),
                         const SizedBox(
                           height: 8,
                         ),
                         Text(
-                          '₹ ${generatedTicket.price.toString()}',
+                          '₹ ${ticketReportItem.price.toString()}',
                           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
                         )
                       ],
@@ -65,7 +68,7 @@ class TicketCard extends StatelessWidget {
                     padding: EdgeInsets.all(8.0),
                     // child: Text(DateFormat().format(generatedTicket.issuedTs).toString()),
                     child: Text(
-                      DateFormat('h:mm a').format(generatedTicket.issuedTs).toString(),
+                      DateFormat('h:mm a').format(ticketReportItem.issuedTs).toString(),
                       style: TextStyle(fontSize: 14),
                     ),
                   ))

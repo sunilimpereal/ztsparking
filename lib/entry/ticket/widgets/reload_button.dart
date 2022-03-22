@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../data/repository/ticket_bloc.dart';
 
 class ZTSReloadButton extends StatefulWidget {
-  const ZTSReloadButton({Key? key}) : super(key: key);
+   final bool isHour;
+  const ZTSReloadButton({Key? key,required this.isHour}) : super(key: key);
 
   @override
   _ZTSReloadButtonState createState() => _ZTSReloadButtonState();
@@ -25,8 +28,9 @@ class _ZTSReloadButtonState extends State<ZTSReloadButton> with SingleTickerProv
     return Container(
       child: IconButton(
         onPressed: () {
-          _controller.repeat();
-          TicketProvider.of(context).getRecentTickets().then((value) {
+         _controller.repeat();
+          log("asd" + widget.isHour.toString());
+          TicketProvider.of(context).getTicketReport(showonlyHour: widget.isHour).then((value) {
             _controller.stop();
           });
         },

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../main.dart';
+import '../../main.dart';
 
 ThemeData get theme {
   Color primary = const Color(0xFF087D00);

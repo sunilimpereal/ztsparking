@@ -50,10 +50,15 @@ dependencies:
   flutter_svg: ^0.23.0+1
   lottie: ^1.2.1
   flutter_styled_toast: ^2.0.0
+  flutter_barcode_scanner: ^2.0.0
 
   #printing
   qr_flutter: ^4.0.0
   jwt_decoder: ^2.0.1
+
+  #datepicker
+  syncfusion_flutter_datepicker: ^19.3.48
+  syncfusion_flutter_pdf: ^19.3.48-beta
 
 
 
@@ -89,6 +94,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
+    - assets/lottie/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:ztsparking/authentication/login/login_page.dart';
 
 import 'package:ztsparking/entry/entry_dash/data/repository/category_repository_bloc.dart';
 import 'package:ztsparking/entry/ticket/data/repository/ticket_bloc.dart';
@@ -10,7 +11,6 @@ import 'package:ztsparking/entry/widgets/print_section.dart';
 import 'package:ztsparking/entry/widgets/subcategory_card.dart';
 
 import 'data/models/category.dart';
-
 
 class DashBoardWrapper extends StatefulWidget {
   const DashBoardWrapper({Key? key}) : super(key: key);
@@ -96,7 +96,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                         ],
                                       ),
-                                      MenuDropDown(),
+                                      MenuDropDown(
+                                        logout: () {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => const LoginPage(),
+                                            ),
+                                          );
+                                        },
+                                      ),
                                     ],
                                   ),
                                 ),

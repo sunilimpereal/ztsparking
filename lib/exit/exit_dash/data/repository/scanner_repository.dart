@@ -3,19 +3,62 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+import 'package:intl/intl.dart';
+import 'package:ztsparking/constants/config_.dart';
+import 'package:ztsparking/entry/entry_dash/data/models/category.dart';
 import 'package:ztsparking/exit/exit_dash/data/model/ticket_detail.dart';
 import 'package:ztsparking/repository/repositry.dart';
+import 'package:ztsparking/services/printer.dart';
+import 'package:ztsparking/utils/methods.dart';
 
-import '../../../../../main.dart';
+import '../../../../main.dart';
 
 class ScannerRepository {
-  static Future<TicketDetail?> scanTicket(
+  Future<bool> printticket({
+    required TicketDetail ticketDetail,
+    required BuildContext context,
+  }) async {
+    Printer printer = Printer();
+    String violations = "";
+    double total = ticketDetail.offlineTicket.price;
+    List<String> lineItems =
+        ticketDetail.offlineTicket.lineitems.map((e) => "${e.subcategoryName} ${e.type}").toList();
+
+    List<String> lineitemQty =
+        ticketDetail.offlineTicket.lineitems.map((e) => e.quantity.toString()).toList();
+    List<String> lineitemTotal =
+        ticketDetail.offlineTicket.lineitems.map((e) => e.price.toString()).toList();
+    if (ticketDetail.offlineTicket.fine > 0) {
+      lineItems.add("Overstay Charges");
+      lineitemQty.add("");
+      lineitemTotal.add("${ticketDetail.offlineTicket.fine}");
+      total = total + ticketDetail.offlineTicket.fine;
+    }
+
+    Map<String, dynamic> data = {
+      'isExitTicket': true,
+      'date': "${DateFormat('dd/MM/yyyy').format(ticketDetail.offlineTicket.issuedTs)}",
+      'entryTime': "${DateFormat.jm().format(ticketDetail.offlineTicket.issuedTs)}",
+      'exitTime':
+          "${DateFormat.jm().format(getCurrentDateTime(ticketDetail.offlineTicket.modifiedTs))}",
+      'categoryName': "Parking Exit",
+      'lineItems': lineItems,
+      'lineitemQty': lineitemQty,
+      'lineitemTotal': lineitemTotal,
+      'ticketTotal': total.toString(),
+      'ticketNumber': ticketDetail.offlineTicket.number,
+      "qrCode": "0",
+      "vehicleNumber": "",
+    };
+    final result = await printer.printReceipt(data);
+    log(result.toString());
+
+    return result;
+  }
+
+  Future<TicketDetail?> scanTicket(
       {required BuildContext context, required String ticketNumber}) async {
     try {
-      // Map<String, String>? postheaders = {
-      //   'Accept': 'application/json',
-      //   'Authorization': 'Bearer ${sharedPref.token}',
-      // };
       Map<String, String>? headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -23,8 +66,8 @@ class ScannerRepository {
       };
 
       final response = await API.get(
-          url: 'qr_code/?uuid=$ticketNumber',
-          apiRoot: config.API_ROOTV1,
+          url: 'qr_code_park/?uuid=$ticketNumber',
+          apiRoot: Config().API_ROOTV1,
           context: context,
           headers1: headers);
       if (response.statusCode == 200) {
@@ -32,15 +75,22 @@ class ScannerRepository {
         if (!ticketDetail.isScanned) {
           log('is_scanned ${ticketDetail.isScanned}');
           final responsePatch = await API.patch(
-              url: 'qr_code/${ticketDetail.id}/',
+              url: 'qr_code_park/${ticketDetail.id}/',
               context: context,
-              apiRoot: config.API_ROOTV1,
+              apiRoot: Config().API_ROOTV1,
               body: '{"is_scanned": true }');
           if (responsePatch.statusCode == 200) {
-             TicketDetail ticketDetailPatch = ticketDetailSingleFromJson(responsePatch.body);
-             ticketDetailPatch.isScanned = false;
-              log("post ticket responce : ${responsePatch.body}");
-
+            TicketDetail ticketDetailPatch = ticketDetailSingleFromJson(responsePatch.body);
+            ticketDetailPatch.isScanned = false;
+            if (ticketDetail.offlineTicket.lineitems[0].category
+                .toLowerCase()
+                .contains("parking")) {
+              printticket(
+                ticketDetail: ticketDetailPatch,
+                context: context,
+              );
+            }
+            log("post ticket responce : ${responsePatch.body}");
             return ticketDetailPatch;
           }
         } else {
@@ -74,7 +124,7 @@ class ScannerRepository {
       };
       final response = await API.post(
           url: 'validate_adoption_pass/',
-          apiRoot: config.API_ROOTV1,
+          apiRoot: Config().API_ROOTV1,
           headers: postheaders,
           context: context,
           body: "{'qr_code': '$qrCode'}");
